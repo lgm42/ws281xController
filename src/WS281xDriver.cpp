@@ -10,10 +10,10 @@ void WS281xDriver::setup()
 {
     _ws2812fx = new WS2812FX(Configuration._numLeds, WS281X_PIN, Configuration._neoPixelType);
     _ws2812fx->init();
-    _ws2812fx->setBrightness(255);
+    _ws2812fx->setBrightness(0);
     _ws2812fx->setSpeed(1000);
     _ws2812fx->setColor(0xFFFFFF);
-    _ws2812fx->setMode(FX_MODE_FADE);
+    _ws2812fx->setMode(FX_MODE_STATIC);
     _ws2812fx->start();
 }
 

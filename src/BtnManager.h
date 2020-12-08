@@ -33,6 +33,8 @@ private:
     unsigned long _lastButtonChangeTime;
     EState _fsmState;
     int _nbPressed;
+    bool _ledPowered;
+    bool _fadeIn;
 };
 
 #if !defined(NO_GLOBAL_INSTANCES)

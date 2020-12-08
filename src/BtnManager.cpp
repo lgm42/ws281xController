@@ -25,6 +25,8 @@ void BtnManager::setup(void)
     _lastButtonState = btnPressed();
     _fsmState = kWaitForPress;
     _nbPressed = 0;
+    _ledPowered = false;
+    _fadeIn = true;
 }
 
 void BtnManager::handle(void)
@@ -77,6 +79,8 @@ void BtnManager::handle(void)
             if (not btnState)
             {
                 _nbPressed = 0;
+                //we invert fade for next time
+                _fadeIn = not _fadeIn;
                  _fsmState = kWaitForPress;
             }
 
@@ -117,11 +121,46 @@ bool BtnManager::btnPressed() const
 void BtnManager::runPressCommand(const int nbPress)
 {
     Log.println(String(nbPress) + String(" press"));
+    
+    switch (nbPress)
+    {
+        case 1:
+            if (not _ledPowered)
+            {
+                //normal on
+                LedDriver.sendCommand("ws_mode", "0");
+                LedDriver.sendCommand("ws_brightness", "255");
+                _fadeIn = false;
+                _ledPowered = true;
+            }
+            else
+            {
+                LedDriver.sendCommand("ws_brightness", "0");
+                _ledPowered = false;
+            }
+            
+            break;
+        case 2:
+            LedDriver.sendCommand("ws_brightness", "255");
+            LedDriver.sendCommand("ws_mode", "p1");
+            _ledPowered = true;
+            _fadeIn = false;
+            break;
+    }
 }
 
 void BtnManager::runDimmerCommand()
 {
     Log.println("Dimmer action");
+    if (_fadeIn)
+    {
+        LedDriver.sendCommand("ws_brightness", "p10");
+    }
+    else
+    {
+        LedDriver.sendCommand("ws_brightness", "m10");
+    }
+    
 }
 
 #if !defined(NO_GLOBAL_INSTANCES)

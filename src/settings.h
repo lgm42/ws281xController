@@ -24,7 +24,7 @@
 #define MIN_TIME_FOR_SHORT_PRESS    100
 #define MIN_TIME_FOR_LONG_PRESS    500
 #define MAX_TIME_BETWEEN_TWO_PRESS  300
-#define TIME_FOR_DIMMER_STEP        50
+#define TIME_FOR_DIMMER_STEP        100
 
 // Timezone
 #define UTC_OFFSET      +1
