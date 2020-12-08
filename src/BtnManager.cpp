@@ -128,14 +128,16 @@ void BtnManager::runPressCommand(const int nbPress)
             if (not _ledPowered)
             {
                 //normal on
-                LedDriver.sendCommand("ws_mode", "0");
+                //LedDriver.sendCommand("ws_mode", String(WS281xDriver::FadeAnimationIndex));
+                LedDriver.sendCommand("ws_fadeto", "FFFFFF");
                 LedDriver.sendCommand("ws_brightness", "255");
                 _fadeIn = false;
                 _ledPowered = true;
             }
             else
             {
-                LedDriver.sendCommand("ws_brightness", "0");
+                LedDriver.sendCommand("ws_fadeto", "000000");
+                //LedDriver.sendCommand("ws_brightness", "0");
                 _ledPowered = false;
             }
             

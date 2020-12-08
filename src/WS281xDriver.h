@@ -13,6 +13,9 @@
 class WS281xDriver 
 {
   public:
+  
+    static const int FadeAnimationIndex;
+	
 	WS281xDriver() {}
   	virtual ~WS281xDriver() {}
 
@@ -43,8 +46,11 @@ class WS281xDriver
 
   private:
   WS2812FX * _ws2812fx;
+  uint32_t _fadeSourceColor;
+  uint32_t _fadeDestColor;
 
   int parseOffset(const String & value);
+  static uint16_t fadeIn(void);
 
 };
 

@@ -6,6 +6,9 @@
 /********************************************************/
 /******************** Public Method *********************/
 /********************************************************/
+
+const int WS281xDriver::FadeAnimationIndex = 55;
+
 void WS281xDriver::setup()
 {
     _ws2812fx = new WS2812FX(Configuration._numLeds, WS281X_PIN, Configuration._neoPixelType);
@@ -15,6 +18,10 @@ void WS281xDriver::setup()
     _ws2812fx->setColor(0xFFFFFF);
     _ws2812fx->setMode(FX_MODE_STATIC);
     _ws2812fx->start();
+    _fadeSourceColor = 0x000000;
+    _fadeDestColor = 0xFFFFFF;
+
+    _ws2812fx->setCustomMode(F("Fade in"), fadeIn);
 }
 
 void WS281xDriver::handle()
@@ -103,8 +110,9 @@ String WS281xDriver::sendCommand(const String & command)
         }
 
         startCommandIndex = next;
-        
+        //TODO : finish
     }
+    return "";
 }
 
 String WS281xDriver::sendCommand(const String & name, const String & value)
@@ -116,7 +124,15 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 
     Log.println(String("command ") + name + String(" : ") + value);
 
-    if (nameToUse == "ws_mode")
+    if (nameToUse == "ws_fadeto")
+    {
+      uint32_t destColor = strtol(valueToUse.c_str(), 0, 16);
+      Log.println("dest color : " + String(destColor));
+      LedDriver._fadeDestColor = destColor;
+      Log.println(String("set WS2812FX mode to ") + String(WS281xDriver::FadeAnimationIndex));
+      LedDriver.driver()->setMode(WS281xDriver::FadeAnimationIndex);
+    }
+    else if (nameToUse == "ws_mode")
     {
       int val;
       int offset = parseOffset(valueToUse);
@@ -243,6 +259,32 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       LedDriver.setBlueColor(val);
     }
     return "";
+}
+
+uint16_t WS281xDriver::fadeIn(void) 
+{
+  WS2812FX::Segment* seg = LedDriver.driver()->getSegment(); // get the current segment
+  WS2812FX::Segment_runtime* segrt = LedDriver.driver()->getSegmentRuntime();
+
+  if (segrt->counter_mode_call == 0)
+  {
+    Log.println("init animation");
+    LedDriver._fadeSourceColor = LedDriver.driver()->getPixelColor(0);
+  }
+
+  uint16_t count = segrt->aux_param3;
+  if (count < 255)
+  {
+    uint32_t color = LedDriver.driver()->color_blend(LedDriver._fadeSourceColor, LedDriver._fadeDestColor, count);
+    for(uint16_t i = seg->start; i <= seg->stop; ++i)
+    {
+      LedDriver.driver()->setPixelColor(i, Adafruit_NeoPixel::gamma32(color));
+    }
+    segrt->aux_param3 += 1;
+  }
+  //else animation is finished and doesn't loop
+  
+  return (seg->speed / 100);
 }
 
 #if !defined(NO_GLOBAL_INSTANCES) 
