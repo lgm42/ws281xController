@@ -15,7 +15,8 @@ class WS281xDriver
   public:
   
     static const int FadeAnimationIndex;
-	
+    static const int FadeBrightnessAnimationIndex;
+
 	WS281xDriver() {}
   	virtual ~WS281xDriver() {}
 
@@ -26,6 +27,9 @@ class WS281xDriver
 
 	String sendCommand(const String & name, const String & value);
 	String sendCommand(const String & command);
+
+	bool isBrightnessMin();
+	bool isBrightnessMax();
 
 	uint8_t getWhiteColor() const;
 	uint8_t getRedColor() const;
@@ -48,9 +52,16 @@ class WS281xDriver
   WS2812FX * _ws2812fx;
   uint32_t _fadeSourceColor;
   uint32_t _fadeDestColor;
+  uint8_t _fadeCurrentBrightness;
+  uint8_t _fadeDestBrightness;
+  uint32_t _onColor;
+  uint32_t _colorToSet;
+
+  static const uint8_t BrightnessGammaTable[101];
 
   int parseOffset(const String & value);
   static uint16_t fadeIn(void);
+  static uint16_t fadeBrightness(void);
 
 };
 

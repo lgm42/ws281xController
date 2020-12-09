@@ -25,7 +25,6 @@ void BtnManager::setup(void)
     _lastButtonState = btnPressed();
     _fsmState = kWaitForPress;
     _nbPressed = 0;
-    _ledPowered = false;
     _fadeIn = true;
 }
 
@@ -71,6 +70,11 @@ void BtnManager::handle(void)
                     Log.println("long press");
                     _fsmState = kWaitForEndOfDimmer;
                     _lastButtonChangeTime = now;
+                    if (LedDriver.isBrightnessMin())
+                        _fadeIn = true;
+                    if (LedDriver.isBrightnessMax())
+                        _fadeIn = false;
+                    //else we keep last value
                 }
             }
         break;
@@ -125,27 +129,28 @@ void BtnManager::runPressCommand(const int nbPress)
     switch (nbPress)
     {
         case 1:
-            if (not _ledPowered)
+            if (LedDriver.isBrightnessMin())
             {
                 //normal on
                 //LedDriver.sendCommand("ws_mode", String(WS281xDriver::FadeAnimationIndex));
-                LedDriver.sendCommand("ws_fadeto", "FFFFFF");
-                LedDriver.sendCommand("ws_brightness", "255");
-                _fadeIn = false;
-                _ledPowered = true;
+                //LedDriver.driver()->setColor(0xFFFFFF);
+                //LedDriver.sendCommand("ws_brightness", "255");
+                LedDriver.sendCommand("ws_fadebrightnessto", "255");
             }
             else
             {
-                LedDriver.sendCommand("ws_fadeto", "000000");
+                LedDriver.sendCommand("ws_fadebrightnessto", "0");
+                //LedDriver.sendCommand("ws_fadeto", "000000");
                 //LedDriver.sendCommand("ws_brightness", "0");
-                _ledPowered = false;
             }
             
             break;
+        default:
         case 2:
             LedDriver.sendCommand("ws_brightness", "255");
-            LedDriver.sendCommand("ws_mode", "p1");
-            _ledPowered = true;
+            LedDriver.sendCommand("ws_color", "00FF00");
+            LedDriver.sendCommand("ws_mode", "50");
+            LedDriver.sendCommand("ws_speed", "300");
             _fadeIn = false;
             break;
     }

@@ -8,20 +8,37 @@
 /********************************************************/
 
 const int WS281xDriver::FadeAnimationIndex = 55;
+const int WS281xDriver::FadeBrightnessAnimationIndex = 56;
+
+const uint8_t WS281xDriver::BrightnessGammaTable[101] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 1, 1, 1, 1, 2,
+  2, 2, 2, 2, 2, 3, 3, 4, 4, 4,
+  5, 5, 5, 6, 6, 7, 7, 8, 8, 9,
+  9, 10, 11, 11, 12, 13, 13, 15, 15, 16,
+  17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+  27, 28, 29, 31, 32, 33, 35, 36, 37, 39,
+  40, 42, 44, 45, 47, 48, 50, 51, 53, 55,
+  57, 59, 60, 63, 64, 67, 68, 71, 72, 75,
+  77, 79, 82, 84, 86, 88, 91, 93, 96, 99,
+  100
+};
 
 void WS281xDriver::setup()
 {
+    _onColor = 0xFFFFFFFF;
     _ws2812fx = new WS2812FX(Configuration._numLeds, WS281X_PIN, Configuration._neoPixelType);
     _ws2812fx->init();
     _ws2812fx->setBrightness(0);
     _ws2812fx->setSpeed(1000);
-    _ws2812fx->setColor(0xFFFFFF);
+    _ws2812fx->setColor(_onColor);
     _ws2812fx->setMode(FX_MODE_STATIC);
     _ws2812fx->start();
     _fadeSourceColor = 0x000000;
-    _fadeDestColor = 0xFFFFFF;
+    _fadeDestColor = _onColor;
 
     _ws2812fx->setCustomMode(F("Fade in"), fadeIn);
+    _ws2812fx->setCustomMode(F("Fade brightness"), fadeBrightness);
 }
 
 void WS281xDriver::handle()
@@ -129,8 +146,16 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       uint32_t destColor = strtol(valueToUse.c_str(), 0, 16);
       Log.println("dest color : " + String(destColor));
       LedDriver._fadeDestColor = destColor;
-      Log.println(String("set WS2812FX mode to ") + String(WS281xDriver::FadeAnimationIndex));
+      Log.println(String("set WS2812FX fade to ") + String(WS281xDriver::FadeAnimationIndex));
       LedDriver.driver()->setMode(WS281xDriver::FadeAnimationIndex);
+    }
+    else if (nameToUse == "ws_fadebrightnessto")
+    {
+      uint8_t destBrightness = valueToUse.toInt();
+      Log.println("dest brightness : " + String(destBrightness));
+      LedDriver._fadeDestBrightness = destBrightness;
+      Log.println(String("set WS2812FX mode to ") + String(WS281xDriver::FadeBrightnessAnimationIndex));
+      LedDriver.driver()->setMode(WS281xDriver::FadeBrightnessAnimationIndex);
     }
     else if (nameToUse == "ws_mode")
     {
@@ -167,6 +192,12 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 
       Log.println(String("set WS2812FX brightness to ") + String(val));
       LedDriver.driver()->setBrightness(val);
+    }
+    else if (nameToUse == "ws_color")
+    {
+      uint32_t destColor = strtol(valueToUse.c_str(), 0, 16);
+      Log.println("dest color : " + String(destColor));
+      LedDriver.driver()->setColor(destColor);
     }
     else if (nameToUse == "ws_speed")
     {
@@ -261,6 +292,16 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
     return "";
 }
 
+bool WS281xDriver::isBrightnessMin()
+{
+  return driver()->getBrightness() == 0;
+}
+
+bool WS281xDriver::isBrightnessMax()
+{
+  return driver()->getBrightness() == 255;
+}
+
 uint16_t WS281xDriver::fadeIn(void) 
 {
   WS2812FX::Segment* seg = LedDriver.driver()->getSegment(); // get the current segment
@@ -285,6 +326,50 @@ uint16_t WS281xDriver::fadeIn(void)
   //else animation is finished and doesn't loop
   
   return (seg->speed / 100);
+}
+
+uint16_t WS281xDriver::fadeBrightness(void) 
+{
+  WS2812FX::Segment* seg = LedDriver.driver()->getSegment(); // get the current segment
+  WS2812FX::Segment_runtime* segrt = LedDriver.driver()->getSegmentRuntime();
+
+  if (segrt->counter_mode_call == 0)
+  {
+    LedDriver._fadeCurrentBrightness = LedDriver.driver()->getBrightness();
+    if (LedDriver._fadeCurrentBrightness == 0)
+    {
+      //no color we have to set one
+      LedDriver._colorToSet = LedDriver._onColor;
+    }
+    else
+    {
+      LedDriver._colorToSet = LedDriver.driver()->getPixelColor(0);
+    }
+    
+  }
+
+  for(uint16_t i = seg->start; i <= seg->stop; ++i)
+  {
+    LedDriver.driver()->setPixelColor(i, LedDriver._colorToSet);
+  }
+
+  if (LedDriver._fadeCurrentBrightness != LedDriver._fadeDestBrightness)
+  {
+    if (LedDriver._fadeCurrentBrightness > LedDriver._fadeDestBrightness)
+    {
+      if (LedDriver._fadeCurrentBrightness > 0)
+        LedDriver._fadeCurrentBrightness--;
+    }
+    else
+    {
+      if (LedDriver._fadeCurrentBrightness < 255)
+        LedDriver._fadeCurrentBrightness++;
+    }
+    LedDriver.driver()->setBrightness(Adafruit_NeoPixel::gamma8(LedDriver._fadeCurrentBrightness));
+  }
+  //else animation is finished and doesn't loop
+  
+  return (seg->speed / 500);
 }
 
 #if !defined(NO_GLOBAL_INSTANCES) 
