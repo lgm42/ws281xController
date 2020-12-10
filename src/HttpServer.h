@@ -4,7 +4,7 @@
 #include <ESP8266HTTPUpdateServer.h>
 #include <ArduinoJson.h>
 
-#include "JsonConfiguration.h"
+#include "EEPROMConfiguration.h"
 
 class HttpServer
 {

@@ -11,6 +11,7 @@
 #define DEFAULT_MQTTPORTSERVER              1883
 #define DEFAULT_WS281X_LED_COUNT            3
 #define DEFAULT_WS281X_NEO_PIXEL_TYPE       NEO_RGB + NEO_KHZ800
+#define DEFAULT_WS281X_COLOR_LED_ON         0xFFFFFFFF
 
 #define NTP_UPDATE_INTERVAL_MSEC     (1 * 3600 * 1000)      // Update time from NTP server every 1 hour
 

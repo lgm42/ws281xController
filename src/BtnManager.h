@@ -1,10 +1,6 @@
 #pragma once
 
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
-#include <ArduinoJson.h>
-
-#include "JsonConfiguration.h"
+#include "EEPROMConfiguration.h"
 
 class BtnManager
 {

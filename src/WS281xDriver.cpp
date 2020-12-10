@@ -1,5 +1,5 @@
 #include "Logger.h"
-#include "JsonConfiguration.h"
+#include "EEPROMConfiguration.h"
 
 #include "WS281xDriver.h"
 
@@ -27,7 +27,7 @@ const uint8_t WS281xDriver::BrightnessGammaTable[101] = {
 void WS281xDriver::setup()
 {
     _onColor = 0xFFFFFFFF;
-    _ws2812fx = new WS2812FX(Configuration._numLeds, WS281X_PIN, Configuration._neoPixelType);
+    _ws2812fx = new WS2812FX(Configuration.numLeds(), WS281X_PIN, Configuration.neoPixelType());
     _ws2812fx->init();
     _ws2812fx->setBrightness(0);
     _ws2812fx->setSpeed(1000);

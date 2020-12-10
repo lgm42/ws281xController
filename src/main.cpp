@@ -3,7 +3,7 @@
 #include <ArduinoOTA.h>
 
 #include "Logger.h"
-#include "JsonConfiguration.h"
+#include "EEPROMConfiguration.h"
 #include "NetworkManager.h"
 #include "WS281xDriver.h"
 #include "BtnManager.h"

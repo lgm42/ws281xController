@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 #include "HttpServer.h"
-#include "JsonConfiguration.h"
+#include "EEPROMConfiguration.h"
 
 #include "NetworkManager.h"
 
@@ -31,7 +31,7 @@ void NetworkManager::setup()
 
     Log.println("Try to connect to WiFi...");
     wifiManager.setConfigPortalTimeout(300); // Set Timeout for portal configuration to xx seconds
-    if (!wifiManager.autoConnect(Configuration._hostname.c_str()))
+    if (!wifiManager.autoConnect(Configuration.hostname().c_str()))
     {
         Log.println("failed to connect and hit timeout");
         delay(3000);
@@ -56,7 +56,7 @@ void NetworkManager::setup()
     ArduinoOTA.setPort(8266);
 
     // Hostname defaults to esp8266-[ChipID]
-    ArduinoOTA.setHostname(Configuration._hostname.c_str());
+    ArduinoOTA.setHostname(Configuration.hostname().c_str());
 
     ArduinoOTA.onStart([&]() {
         Log.println("Arduino OTA: Start updating");
@@ -90,7 +90,7 @@ void NetworkManager::setup()
     ArduinoOTA.begin();
 
     /* Initialize MDNS */
-    MDNS.begin(Configuration._hostname.c_str());
+    MDNS.begin(Configuration.hostname().c_str());
     MDNS.addService("http", "tcp", 80);
 }
 
