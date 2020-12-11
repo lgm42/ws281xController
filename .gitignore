@@ -7,3 +7,7 @@
 test/
 
 front/node_modules/
+
+front/package-lock.json
+
+front/ws281x-controller/package-lock.json
