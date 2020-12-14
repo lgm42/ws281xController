@@ -142,7 +142,7 @@ ESP8266WebServer &HttpServer::webServer()
 /********************************************************/
 /******************** Private Method ********************/
 /********************************************************/
-
+/*
 void HttpServer::sendJson(const uint16 code, JsonDocument &doc)
 {
   WiFiClient client = HTTPServer.webServer().client();
@@ -154,13 +154,13 @@ void HttpServer::sendJson(const uint16 code, JsonDocument &doc)
   client.println(F("Content-Type: application/json"));
   client.println(F("Access-Control-Allow-Origin: *"));
   client.print(F("Content-Length: "));
-  client.println(measureJson(doc));
+  //client.println(measureJson(doc));
   client.println(F("Connection: close"));
   client.println();
 
   // Write JSON document
-  serializeJson(doc, client);
-}
+  //serializeJson(doc, client);
+}*/
 
 #if !defined(NO_GLOBAL_INSTANCES)
 HttpServer HTTPServer;

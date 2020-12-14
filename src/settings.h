@@ -17,10 +17,10 @@
 
 // LED
 #define LED_PIN             LED_BUILTIN
-#define WS281X_PIN          D6
+#define WS281X_PIN          2//D6
 
 // BUTTON
-#define BUTTON              D7
+#define BUTTON              4//D7
 
 #define MIN_TIME_FOR_SHORT_PRESS    100
 #define MIN_TIME_FOR_LONG_PRESS    500
