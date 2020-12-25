@@ -11,3 +11,7 @@ front/node_modules/
 front/package-lock.json
 
 front/ws281x-controller/package-lock.json
+
+web/node_modules/
+
+web/package-lock.json
