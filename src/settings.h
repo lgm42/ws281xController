@@ -9,7 +9,7 @@
 #define DEFAULT_HOSTNAME                    "WS21X_CONTROLLER"
 #define DEFAULT_MQTTIPSERVER                "192.168.0.62"
 #define DEFAULT_MQTTPORTSERVER              1883
-#define DEFAULT_WS281X_LED_COUNT            3
+#define DEFAULT_WS281X_LED_COUNT            90
 #define DEFAULT_WS281X_NEO_PIXEL_TYPE       NEO_RGB + NEO_KHZ800
 #define DEFAULT_WS281X_COLOR_LED_ON         0xFFFFFFFF
 

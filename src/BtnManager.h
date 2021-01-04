@@ -16,6 +16,8 @@ public:
 private:
     void runPressCommand(const int nbPress);
     void runDimmerCommand();
+    void runOnCommand();
+    void runOffCommand();
 
     typedef enum EState
     {

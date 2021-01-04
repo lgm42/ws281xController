@@ -19,11 +19,13 @@ void setup() {
   Log.println(String(F("  Build: ")) + F(__DATE__) + " " + F(__TIME__));
 
   Configuration.setup();
-  //Configuration.restoreDefault();
+  Configuration.restoreDefault();
 
   Network.setup();
   LedDriver.setup();
   ButtonManager.setup();
+
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 void loop() {

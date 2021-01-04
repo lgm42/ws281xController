@@ -1,9 +1,9 @@
-#include <littleFS.h>
 #include <ESP8266mDNS.h>
 
 #include "WiFiManager.h"
 #include "Logger.h"
 #include "WS281xDriver.h"
+#include "ActionManager.h"
 
 #include "BtnManager.h"
 
@@ -119,7 +119,7 @@ void BtnManager::handle(void)
 
 bool BtnManager::btnPressed() const
 {
-    return digitalRead(BUTTON);
+    return not digitalRead(BUTTON);
 }
 
 void BtnManager::runPressCommand(const int nbPress)
@@ -130,27 +130,14 @@ void BtnManager::runPressCommand(const int nbPress)
     {
         case 1:
             if (LedDriver.isBrightnessMin())
-            {
-                //normal on
-                //LedDriver.sendCommand("ws_mode", String(WS281xDriver::FadeAnimationIndex));
-                //LedDriver.driver()->setColor(0xFFFFFF);
-                //LedDriver.sendCommand("ws_brightness", "255");
-                LedDriver.sendCommand("ws_fadebrightnessto", "255");
-            }
+                ActionRunner.executeBtnOnAction();
             else
-            {
-                LedDriver.sendCommand("ws_fadebrightnessto", "0");
-                //LedDriver.sendCommand("ws_fadeto", "000000");
-                //LedDriver.sendCommand("ws_brightness", "0");
-            }
+                ActionRunner.executeBtnOffAction();
             
             break;
         default:
         case 2:
-            LedDriver.sendCommand("ws_brightness", "255");
-            LedDriver.sendCommand("ws_color", "00FF00");
-            LedDriver.sendCommand("ws_mode", "50");
-            LedDriver.sendCommand("ws_speed", "300");
+            ActionRunner.executeBtnDoubleTouchAction();
             _fadeIn = false;
             break;
     }
@@ -160,14 +147,9 @@ void BtnManager::runDimmerCommand()
 {
     Log.println("Dimmer action");
     if (_fadeIn)
-    {
-        LedDriver.sendCommand("ws_brightness", "p10");
-    }
+        ActionRunner.executeDimmerFadeInAction();
     else
-    {
-        LedDriver.sendCommand("ws_brightness", "m10");
-    }
-    
+        ActionRunner.executeDimmerFadeOutAction();
 }
 
 #if !defined(NO_GLOBAL_INSTANCES)

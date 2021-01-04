@@ -3,8 +3,11 @@
 
 #include "WiFiManager.h"
 #include "HttpServer.h"
+#include "ActionManager.h"
 #include "Logger.h"
 #include "WS281xDriver.h"
+
+#include "../web/dist/index.html.gz.h"
 
 /********************************************************/
 /******************** Public Method *********************/
@@ -38,7 +41,10 @@ void HttpServer::setup(void)
 
   _webServer.on("/cmd", HttpServer::handleCmd);
 
-  _webServer.onNotFound(HttpServer::handleNotFound);
+  _webServer.onNotFound([&]() {
+		if (!handleFileRead(_webServer.uri()))
+			_webServer.send(404, "text/plain", "FileNotFound");
+	});
 
   _webServer.begin();
 }
@@ -83,23 +89,29 @@ String HttpServer::getContentType(String filename)
 bool HttpServer::handleFileRead(String path)
 {
   Log.println("handleFileRead: " + path);
-  if (path.endsWith("/"))
+  _webServer.sendHeader("Access-Control-Allow-Origin", "*");
+  _webServer.sendHeader("Access-Control-Max-Age", "10000");
+  _webServer.sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+  _webServer.sendHeader("Access-Control-Allow-Headers", "*");
+	if (_webServer.method() == HTTP_OPTIONS)
+    {
+        _webServer.sendHeader("Access-Control-Allow-Origin", "*");
+        _webServer.sendHeader("Access-Control-Max-Age", "10000");
+        _webServer.sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+        _webServer.sendHeader("Access-Control-Allow-Headers", "*");
+        _webServer.send(204);
+		return true;
+	}
+
+  if (path.endsWith("/")) 
+      path += "index.html";
+
+  if (path.endsWith("/index.html"))
   {
-    path += "index.html"; // If a folder is requested, send the index file
-  }
-  String contentType = HTTPServer.getContentType(path); // Get the MIME type
-  String pathWithGz = path + ".gz";
-  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path))
-  {                                                       // If the file exists, either as a compressed archive, or normal
-    if (LittleFS.exists(pathWithGz))                      // If there's a compressed version available
-      path += ".gz";                                      // Use the compressed verion
-    File file = LittleFS.open(path, "r");                 // Open the file
-    HTTPServer.webServer().streamFile(file, contentType); // Send it to the client
-    file.close();                                         // Close the file again
-    Log.println(String("\tSent file: ") + path);
+    _webServer.sendHeader("Content-Encoding", "gzip");
+    _webServer.send(200, "text/html", index_html_gz, index_html_gz_len);
     return true;
   }
-  Log.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
   return false;
 }
 
@@ -128,7 +140,7 @@ void HttpServer::handleCmd()
     String name = HTTPServer.webServer().argName(i);
     String value = HTTPServer.webServer().arg(i).c_str();
 
-    LedDriver.sendCommand(name, value);
+    ActionRunner.manageCommand(name, value);
   }
 
   HTTPServer.webServer().send(200, "text/plain", message);
