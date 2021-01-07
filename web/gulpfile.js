@@ -20,7 +20,6 @@ gulp.task('inline-html', function () {
         }))
         .pipe(inline({
             base: 'src/',
-            js: uglify,
             css: minifyCss
           }))
         .pipe(inlineImages('src'))
