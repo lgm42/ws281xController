@@ -15,10 +15,10 @@
     rel="stylesheet"
     />
     <!-- MDB -->
-    <link
+    <!--<link
     href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css"
     rel="stylesheet"
-    />
+    />-->
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -31,7 +31,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <span class="material-icons">
+                <span class="material-icons me-3">
                     wb_twilight
                 </span>
                 WS281x Controller
@@ -65,7 +65,337 @@
         </div>
         <div id="configurationContent" class="collapse">
             <h1>Configuration</h1>
+            <form class="row mb-3">
+                <h2 class="mt-3">Réseau</h2>
+                <div class="col-md-6">
+                    <label for="hostnameInput" class="form-label">Nom réseau</label>
+                    <input type="text" class="form-control" id="hostnameInput" aria-describedby="hostnameInputHelp">
+                    <div id="hostnameInputHelp" class="form-text">Nom du périphérique sur le réseau.</div>
+                </div>
+                <div class="col-md-6"></div>
+                <h2 class="mt-3">MQTT</h2>
+                <div class="col-md-6">
+                    <label for="mqttServerIpInput" class="form-label">Adresse IP Serveur MQTT</label>
+                    <input type="text" class="form-control" id="mqttServerIpInput">
+                </div>
+                <div class="col-md-6">
+                    <label for="mqttServerPortInput" class="form-label">Port Serveur MQTT</label>
+                    <input type="number" class="form-control" id="mqttServerPortInput" aria-describedby="mqttServerPortInputHelp">
+                    <div id="mqttServerPortInputHelp" class="form-text">Numéro de port du serveur MQTT.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="mqttLoginInput" class="form-label">Identifiant Serveur MQTT</label>
+                    <input type="text" class="form-control" id="mqttLoginInput">
+                </div>
+                <div class="col-md-6">
+                    <label for="mqttPasswordInput" class="form-label">Mot de passe du Serveur MQTT</label>
+                    <input type="password" class="form-control" id="mqttPasswordInput">
+                </div>
+                <h2 class="mt-3">Leds</h2>
+                <div class="col-md-6">
+                    <label for="numLedsInput" class="form-label">Nombre de leds</label>
+                    <input type="number" class="form-control" id="numLedsInput" aria-describedby="numLedsInputHelp">
+                    <div id="numLedsInputHelp" class="form-text">Nombre de leds du ruban.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="colorLedOnInput" class="form-label">Couleur de l'allumage standard</label>
+                    <input type="text" class="form-control" id="colorLedOnInput" aria-describedby="colorLedOnInputHelp">
+                    <div id="colorLedOnInputHelp" class="form-text">Couleur en héxadécimal de l'allumage standard.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="neoPixelTypeInput" class="form-label">Type de Led NeoPixel</label>
+                    <input type="number" class="form-control" id="neoPixelTypeInput" aria-describedby="neoPixelTypeInputHelp">
+                    <div id="neoPixelTypeInputHelp" class="form-text">Valeur numérique du type de led neopixel (NEO_RGB + NEO_KHZ800 = 6).</div>
+                </div>
+                <div class="col-md-6"></div>
+
+                <h2 class="mt-3">Commandes standards</h2>
+                
+                <div class="col-md-12 text-secondary">
+                    <h3>Gestion des commandes</h3>
+                    <p>Chaque ligne de commande est composée de plusieurs commandes séparées par un ';'.</p>
+                    <p>Une commande peut avoir un paramètre. Une commande s'écrit sous la forme cmd=param (ex : ws_speed=1000).</p>
+                    <p>Si une commande n'a pas de paramètre le '=' est omis (ex : bt_on)</p>
+                    <ul>
+                        <li>cmd : représente une commande. Une commande est préfixée de son domaine (ex: ws_fadeto)</li>
+                        <li>param : valeur du paramètre de la commande (ex: 255).</li>
+                    </ul>
+                    <h3>Liste des commandes</h3>
+                    <ul>
+                        <li>bt_on : Execute l'action de mise à ON;</li>
+                        <li>bt_off : Execute l'action de mise à OFF;</li>
+                        <li>ws_fadeto=value : Change la couleur pour l'amener à value;</li>
+                        <li>ws_fadebrightnessto=value : Change la luminosité pour l'amener à value;</li>
+                        <li>ws_mode=value : Change le mode en utilisant les numéros définis par ws2812Fx;</li>
+                        <li>ws_brightness=value : Change la luminosité courante. Peut recevoir une valeur absolue comprise entre 0 et 255 
+                            ou une valeur relative. Dans le cas d'une valeur relative la valeur doit 
+                            être préficée de 'p' ou de 'm' (ex : p10 augmentera de 10 la luminosité);</li>
+                        <li>ws_color=value : Change la couleur courante par value;</li>
+                        <li>ws_speed=value : Change la vitesse d'animation courante. Les valeurs peuvent être en valeur absolue ou en valeur relatives. Valeur comprise entre 2 et 65535.</li>
+                        <li>ws_pwm{x}=value : Change la valeur du PWM n°x. Les valeurs peuvent être en valeur absolue ou en valeur relatives. (ex : ws_pwm0=100). x peut aller de 0 à 3 et valeur de 0 à 100.</li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <label for="command0Input" class="form-label">Allumage (simple touche)</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">></span>
+                        <input type="text" class="form-control" id="command0Input" aria-describedby="command0InputHelp">
+                    </div>
+                    <div id="command0InputHelp" class="form-text">Commandes à executer sur l'allumage lors d'un appui simple.</div>
+                </div>
+                <div class="col-md-12">
+                    <label for="command1Input" class="form-label">Extinction (simple touche)</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">></span>
+                        <input type="text" class="form-control" id="command1Input" aria-describedby="command1InputHelp">
+                    </div>
+                    <div id="command1InputHelp" class="form-text">Commandes à executer sur l'extinction lors d'un appui simple.</div>
+                </div>
+                <div class="col-md-12">
+                    <label for="command2Input" class="form-label">Commande de dimmer montant (appui long)</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">></span>
+                        <input type="text" class="form-control" id="command2Input" aria-describedby="command2InputHelp">
+                    </div>
+                    <div id="command2InputHelp" class="form-text">Commandes à executer sur l'appui long du bouton.</div>
+                </div>
+                <div class="col-md-12">
+                    <label for="command3Input" class="form-label">Commande de dimmer descendant (appui long)</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">></span>
+                        <input type="text" class="form-control" id="command3Input" aria-describedby="command3InputHelp">
+                    </div>
+                    <div id="command3InputHelp" class="form-text">Commandes à executer sur l'appui long du bouton.</div>
+                </div>
+                
+                
+                <h2 class="mt-3">Commandes personnalisables</h2>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated4Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-4" aria-expanded="false" aria-controls="btn-group-for-command-id-4">
+                    <label class="form-check-label" for="activated4Check">
+                      Commande n° 1
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-4">
+                    <div class="col-md-6">
+                        <label for="name4Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name4Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command4Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command4Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated5Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-5" aria-expanded="false" aria-controls="btn-group-for-command-id-5">
+                    <label class="form-check-label" for="activated5Check">
+                      Commande n° 2
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-5">
+                    <div class="col-md-6">
+                        <label for="name5Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name5Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command5Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command5Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated6Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-6" aria-expanded="false" aria-controls="btn-group-for-command-id-6">
+                    <label class="form-check-label" for="activated6Check">
+                      Commande n° 3
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-6">
+                    <div class="col-md-6">
+                        <label for="name6Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name6Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command6Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command6Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated7Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-7" aria-expanded="false" aria-controls="btn-group-for-command-id-7">
+                    <label class="form-check-label" for="activated7Check">
+                      Commande n° 4
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-7">
+                    <div class="col-md-6">
+                        <label for="name7Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name7Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command7Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command7Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated8Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-8" aria-expanded="false" aria-controls="btn-group-for-command-id-8">
+                    <label class="form-check-label" for="activated8Check">
+                      Commande n° 5
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-8">
+                    <div class="col-md-6">
+                        <label for="name8Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name8Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command8Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command8Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated9Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-9" aria-expanded="false" aria-controls="btn-group-for-command-id-9">
+                    <label class="form-check-label" for="activated9Check">
+                      Commande n° 6
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-9">
+                    <div class="col-md-6">
+                        <label for="name9Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name9Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command9Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command9Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated10Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-10" aria-expanded="false" aria-controls="btn-group-for-command-id-10">
+                    <label class="form-check-label" for="activated10Check">
+                      Commande n° 7
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-10">
+                    <div class="col-md-6">
+                        <label for="name10Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name10Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command10Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command10Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated11Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-11" aria-expanded="false" aria-controls="btn-group-for-command-id-11">
+                    <label class="form-check-label" for="activated11Check">
+                      Commande n° 8
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-11">
+                    <div class="col-md-6">
+                        <label for="name11Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name11Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command11Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command11Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated12Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-12" aria-expanded="false" aria-controls="btn-group-for-command-id-12">
+                    <label class="form-check-label" for="activated12Check">
+                      Commande n° 9
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-12">
+                    <div class="col-md-6">
+                        <label for="name12Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name12Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command12Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command12Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="activated13Check" data-bs-toggle="collapse" href="#btn-group-for-command-id-13" aria-expanded="false" aria-controls="btn-group-for-command-id-13">
+                    <label class="form-check-label" for="activated13Check">
+                      Commande n° 10
+                    </label>
+                </div>
+                <div class="input-group col-md-12 collapse row mb-3" id="btn-group-for-command-id-13">
+                    <div class="col-md-6">
+                        <label for="name13Input" class="form-label">Nom de la commande</label>
+                        <input type="text" class="form-control" id="name13Input">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="command13Input" class="form-label">Codes de la commande</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">></span>
+                            <input type="text" class="form-control" id="command13Input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#restoreDefaultConfigurationModal">Restaurer la configuration par défaut</button>
+                </div>
+                <div class="col-md-6 mt-3 text-end">
+                    <button type="button" id="saveConfigurationBtn" class="btn btn-primary">Sauvegarder</button>
+                </div>
+
+            </form>
         </div>
+        <div class="modal" id="restoreDefaultConfigurationModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Restaurer la configuration par défaut</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Cette action restaure tous les paramètres par défaut. Continuer ?</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non</button>
+                  <button type="button" id="restoreDefaultConfigurationBtn" class="btn btn-danger" data-bs-dismiss="modal">Oui</button>
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
 
 
@@ -73,11 +403,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 
     <!-- MDB -->
+    <!--
     <script
         type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.js"
         ></script>
-
+    -->
     <script src="dev_env.js"></script>
     <script src="main.js"></script>
   </body>
