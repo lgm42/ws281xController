@@ -1,11 +1,8 @@
 Import("env")
 
 # access to global build environment
-print(env)
 
 # Build actions
-
-print("BEFORE BUILD----------------------")
 
 print("Running gulp")
 env.Execute("cd web && gulp")
