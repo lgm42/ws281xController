@@ -117,8 +117,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         console.log(configuration);
         var httpRequest = new XMLHttpRequest();
-            httpRequest.open("GET", baseUrl + "/setConfig");
-            httpRequest.send(configuration);
+            httpRequest.open("POST", baseUrl + "/setConfig");
+            httpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            httpRequest.send(JSON.stringify(configuration));
     };
 
 });
