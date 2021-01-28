@@ -26,16 +26,15 @@ const uint8_t WS281xDriver::BrightnessGammaTable[101] = {
 
 void WS281xDriver::setup()
 {
-    _onColor = 0xFFFFFFFF;
     _ws2812fx = new WS2812FX(Configuration.numLeds(), WS281X_PIN, Configuration.neoPixelType());
     _ws2812fx->init();
     _ws2812fx->setBrightness(0);
     _ws2812fx->setSpeed(1000);
-    _ws2812fx->setColor(_onColor);
+    _ws2812fx->setColor(Configuration.colorLedOn());
     _ws2812fx->setMode(FX_MODE_STATIC);
     _ws2812fx->start();
     _fadeSourceColor = 0x000000;
-    _fadeDestColor = _onColor;
+    _fadeDestColor = Configuration.colorLedOn();
 
     _ws2812fx->setCustomMode(F("Fade in"), fadeIn);
     _ws2812fx->setCustomMode(F("Fade brightness"), fadeBrightness);
@@ -339,7 +338,7 @@ uint16_t WS281xDriver::fadeBrightness(void)
     if (LedDriver._fadeCurrentBrightness == 0)
     {
       //no color we have to set one
-      LedDriver._colorToSet = LedDriver._onColor;
+      LedDriver._colorToSet = Configuration.colorLedOn();
     }
     else
     {

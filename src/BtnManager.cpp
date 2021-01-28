@@ -113,8 +113,6 @@ void BtnManager::handle(void)
             }
         break;
     }
-
-
 }
 
 bool BtnManager::btnPressed() const

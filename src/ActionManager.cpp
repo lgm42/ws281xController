@@ -18,6 +18,12 @@ ActionManager::~ActionManager()
 {
 }
 
+String ActionManager::manageCommandLineFromId(const int id)
+{
+    CommandLine commandLine = Configuration.getCommandLineFromId(id);
+    return manageCommandLine(commandLine.command());
+}
+
 String ActionManager::manageCommandLine(const String & commandLine)
 {
     Log.println("Executing command line: " + commandLine);
@@ -92,7 +98,7 @@ String ActionManager::executeBtnOffAction()
 String ActionManager::executeDimmerFadeInAction()
 {
     Log.println("Executing Fade In Dimmer Action");
-    return manageCommandLine("ws_brightness=p10;ws_speed=1000");
+    return manageCommandLine("ws_brightness=p10");
 }
 
 String ActionManager::executeDimmerFadeOutAction()

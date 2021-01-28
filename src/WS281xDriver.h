@@ -54,7 +54,6 @@ class WS281xDriver
   uint32_t _fadeDestColor;
   uint8_t _fadeCurrentBrightness;
   uint8_t _fadeDestBrightness;
-  uint32_t _onColor;
   uint32_t _colorToSet;
 
   static const uint8_t BrightnessGammaTable[101];

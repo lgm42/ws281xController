@@ -1,5 +1,6 @@
 #include <littleFS.h>
 #include <ESP8266mDNS.h>
+#include <ArduinoJson.h>
 
 #include "WiFiManager.h"
 #include "HttpServer.h"
@@ -40,6 +41,10 @@ void HttpServer::setup(void)
   });
 
   _webServer.on("/cmd", HttpServer::handleCmd);
+
+  _webServer.on("/getConfig", HttpServer::handleGetConfig);
+  _webServer.on("/resetConfig", HttpServer::handleResetConfig);
+  _webServer.on("/setConfig", HTTP_POST, HttpServer::handleSetConfig);
 
   _webServer.onNotFound([&]() {
 		if (!handleFileRead(_webServer.uri()))
@@ -88,18 +93,10 @@ String HttpServer::getContentType(String filename)
 // send the right file to the client (if it exists)
 bool HttpServer::handleFileRead(String path)
 {
-  Log.println("handleFileRead: " + path);
-  _webServer.sendHeader("Access-Control-Allow-Origin", "*");
-  _webServer.sendHeader("Access-Control-Max-Age", "10000");
-  _webServer.sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
-  _webServer.sendHeader("Access-Control-Allow-Headers", "*");
+  HTTPServer.sendCors();
 	if (_webServer.method() == HTTP_OPTIONS)
-    {
-        _webServer.sendHeader("Access-Control-Allow-Origin", "*");
-        _webServer.sendHeader("Access-Control-Max-Age", "10000");
-        _webServer.sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
-        _webServer.sendHeader("Access-Control-Allow-Headers", "*");
-        _webServer.send(204);
+  {
+    _webServer.send(204);
 		return true;
 	}
 
@@ -113,6 +110,14 @@ bool HttpServer::handleFileRead(String path)
     return true;
   }
   return false;
+}
+
+void HttpServer::sendCors()
+{
+  _webServer.sendHeader("Access-Control-Allow-Origin", "*");
+  _webServer.sendHeader("Access-Control-Max-Age", "10000");
+  _webServer.sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
+  _webServer.sendHeader("Access-Control-Allow-Headers", "*");
 }
 
 void HttpServer::handleNotFound()
@@ -143,36 +148,46 @@ void HttpServer::handleCmd()
     ActionRunner.manageCommand(name, value);
   }
 
+  HTTPServer.sendCors();
   HTTPServer.webServer().send(200, "text/plain", message);
+}
+
+void HttpServer::handleGetConfig()
+{
+  HTTPServer.sendCors();
+  HTTPServer.webServer().send(200, "application/json", Configuration.toJson());
+}
+
+void HttpServer::handleResetConfig()
+{
+  String message;
+  
+  Configuration.restoreDefault();
+
+  HTTPServer.sendCors();
+  HTTPServer.webServer().send(200, "application/json", message);
+}
+
+void HttpServer::handleSetConfig()
+{
+
+  Log.println("handleSetConfig");
+  HTTPServer.sendCors();
+  if (HTTPServer.webServer().hasArg("plain")== false){ //Check if body received
+
+        HTTPServer.webServer().send(400, "text/plain", "Body not received");
+        return;
+  }
+
+  Configuration.fromJson(HTTPServer.webServer().arg("plain"));
+
+  HTTPServer.webServer().send(200, "application/json", Configuration.toJson());
 }
 
 ESP8266WebServer &HttpServer::webServer()
 {
   return _webServer;
 }
-
-/********************************************************/
-/******************** Private Method ********************/
-/********************************************************/
-/*
-void HttpServer::sendJson(const uint16 code, JsonDocument &doc)
-{
-  WiFiClient client = HTTPServer.webServer().client();
-
-  // Write Header
-  client.print(F("HTTP/1.0 "));
-  client.print(code);
-  client.println(F(" OK"));
-  client.println(F("Content-Type: application/json"));
-  client.println(F("Access-Control-Allow-Origin: *"));
-  client.print(F("Content-Length: "));
-  //client.println(measureJson(doc));
-  client.println(F("Connection: close"));
-  client.println();
-
-  // Write JSON document
-  //serializeJson(doc, client);
-}*/
 
 #if !defined(NO_GLOBAL_INSTANCES)
 HttpServer HTTPServer;

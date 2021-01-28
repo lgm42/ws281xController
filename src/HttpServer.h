@@ -19,11 +19,15 @@ public:
   
   static void handleNotFound();
   static void handleCmd();
+  static void handleGetConfig();
+  static void handleResetConfig();
+  static void handleSetConfig();
 
   ESP8266WebServer& webServer();
 private:
 
   ESP8266WebServer          _webServer;
+  void sendCors();
 };
 
 #if !defined(NO_GLOBAL_INSTANCES)

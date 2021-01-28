@@ -7,6 +7,7 @@ class ActionManager
 public:
 	ActionManager();
 	virtual ~ActionManager();
+    String manageCommandLineFromId(const int id);
     String manageCommandLine(const String & commandLine);
     String manageCommand(const String & name, const String & value);
 
