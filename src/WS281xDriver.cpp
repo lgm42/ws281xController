@@ -288,6 +288,23 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       Log.println(String("set WS2812FX blue color to ") + String(val));
       LedDriver.setBlueColor(val);
     }
+    else if (nameToUse == "ws_led")
+    {
+      //split params into multiple ones
+      //ie: ws_led=3_13_FF00FF
+      int endOfStart = valueToUse.indexOf("_");
+      int endOfEnd = valueToUse.indexOf("_", endOfStart + 1);
+
+      Log.println("M" + String(endOfStart) + "M" +  String(endOfEnd)+ "M");
+
+      int start = valueToUse.substring(0, endOfStart ).toInt();
+      int end = valueToUse.substring(endOfStart + 1, endOfEnd).toInt();
+      uint32_t destColor = strtol(valueToUse.c_str() + endOfEnd + 1, 0, 16);
+
+      Log.println(String("set WS2812FX led from ") + String(start) + " to " + String(end) + " to color " + String(destColor));
+      for (int n = start; n <= end; ++n)
+        LedDriver.driver()->setPixelColor(n, destColor);
+    }
     return "";
 }
 
