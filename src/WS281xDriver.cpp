@@ -33,6 +33,8 @@ void WS281xDriver::setup()
     _ws2812fx->setColor(Configuration.colorLedOn());
     _ws2812fx->setMode(FX_MODE_STATIC);
     _ws2812fx->start();
+    _ws2812fx->pause();
+
     _fadeSourceColor = 0x000000;
     _fadeDestColor = Configuration.colorLedOn();
 
@@ -147,6 +149,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       LedDriver._fadeDestColor = destColor;
       Log.println(String("set WS2812FX fade to ") + String(WS281xDriver::FadeAnimationIndex));
       LedDriver.driver()->setMode(WS281xDriver::FadeAnimationIndex);
+      LedDriver.driver()->resume();
     }
     else if (nameToUse == "ws_fadebrightnessto")
     {
@@ -155,6 +158,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       LedDriver._fadeDestBrightness = destBrightness;
       Log.println(String("set WS2812FX mode to ") + String(WS281xDriver::FadeBrightnessAnimationIndex));
       LedDriver.driver()->setMode(WS281xDriver::FadeBrightnessAnimationIndex);
+      LedDriver.driver()->resume();
     }
     else if (nameToUse == "ws_mode")
     {
@@ -173,6 +177,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       
       Log.println(String("set WS2812FX mode to ") + String(val));
       LedDriver.driver()->setMode(val);
+      LedDriver.driver()->resume();
     }
     else if (nameToUse == "ws_brightness")
     {
@@ -288,14 +293,12 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       Log.println(String("set WS2812FX blue color to ") + String(val));
       LedDriver.setBlueColor(val);
     }
-    else if (nameToUse == "ws_led")
+    else if (nameToUse == "ws_setpixel")
     {
       //split params into multiple ones
-      //ie: ws_led=3_13_FF00FF
+      //ie: ws_setPixel=3_13_FF00FF
       int endOfStart = valueToUse.indexOf("_");
       int endOfEnd = valueToUse.indexOf("_", endOfStart + 1);
-
-      Log.println("M" + String(endOfStart) + "M" +  String(endOfEnd)+ "M");
 
       int start = valueToUse.substring(0, endOfStart ).toInt();
       int end = valueToUse.substring(endOfStart + 1, endOfEnd).toInt();
@@ -304,6 +307,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       Log.println(String("set WS2812FX led from ") + String(start) + " to " + String(end) + " to color " + String(destColor));
       for (int n = start; n <= end; ++n)
         LedDriver.driver()->setPixelColor(n, destColor);
+      LedDriver.driver()->show();
     }
     return "";
 }
@@ -340,7 +344,13 @@ uint16_t WS281xDriver::fadeIn(void)
     segrt->aux_param3 += 1;
   }
   //else animation is finished and doesn't loop
-  
+  else
+  {
+    //return to static mode
+    LedDriver.driver()->setMode(FX_MODE_STATIC);
+    LedDriver.driver()->pause();
+  }
+
   return (seg->speed / 100);
 }
 
@@ -352,22 +362,24 @@ uint16_t WS281xDriver::fadeBrightness(void)
   if (segrt->counter_mode_call == 0)
   {
     LedDriver._fadeCurrentBrightness = LedDriver.driver()->getBrightness();
-    if (LedDriver._fadeCurrentBrightness == 0)
+
+    for(uint16_t i = seg->start; i <= seg->stop; ++i)
     {
-      //no color we have to set one
-      LedDriver._colorToSet = Configuration.colorLedOn();
+      if (LedDriver._fadeCurrentBrightness == 0)
+      {
+        //no color we have to set one
+        LedDriver.driver()->setPixelColor(i, Configuration.colorLedOn());
+      }
+      //else no color change we keep the current
+      //else
+      //{
+      //  LedDriver._colorToSet = LedDriver.driver()->getPixelColor(0);
+      //}
+      
     }
-    else
-    {
-      LedDriver._colorToSet = LedDriver.driver()->getPixelColor(0);
-    }
-    
   }
 
-  for(uint16_t i = seg->start; i <= seg->stop; ++i)
-  {
-    LedDriver.driver()->setPixelColor(i, LedDriver._colorToSet);
-  }
+
 
   if (LedDriver._fadeCurrentBrightness != LedDriver._fadeDestBrightness)
   {
@@ -384,6 +396,12 @@ uint16_t WS281xDriver::fadeBrightness(void)
     LedDriver.driver()->setBrightness(Adafruit_NeoPixel::gamma8(LedDriver._fadeCurrentBrightness));
   }
   //else animation is finished and doesn't loop
+  else
+  {
+    //return to static mode
+    LedDriver.driver()->setMode(FX_MODE_STATIC);
+    LedDriver.driver()->pause();
+  }
   
   return (seg->speed / 500);
 }
