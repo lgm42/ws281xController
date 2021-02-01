@@ -201,7 +201,8 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
     {
       uint32_t destColor = strtol(valueToUse.c_str(), 0, 16);
       Log.println("dest color : " + String(destColor));
-      LedDriver.driver()->setColor(destColor);
+      LedDriver.driver()->fill(destColor);
+      LedDriver.driver()->show();
     }
     else if (nameToUse == "ws_speed")
     {
@@ -239,6 +240,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
       Log.println(String("set WS2812FX White color to ") + String(val));
       LedDriver.setWhiteColor(val);
     }
+    /*
     else if (nameToUse == "ws_pwm1")
     {
       int offset = parseOffset(valueToUse);
@@ -292,7 +294,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 
       Log.println(String("set WS2812FX blue color to ") + String(val));
       LedDriver.setBlueColor(val);
-    }
+    }*/
     else if (nameToUse == "ws_setpixel")
     {
       //split params into multiple ones
