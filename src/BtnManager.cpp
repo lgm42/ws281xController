@@ -109,7 +109,7 @@ void BtnManager::handle(void)
                 //action resolution based on number of press
                 runPressCommand(_nbPressed);
                 _nbPressed = 0;
-                 _fsmState = kWaitForPress;
+                _fsmState = kWaitForPress;
             }
         break;
     }
