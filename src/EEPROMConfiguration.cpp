@@ -142,7 +142,7 @@ void EEPROMConfiguration::restoreDefault()
   updateCommandLine(CommandLine(CommandLine::kFadeOutActionCommandLineId, "fadeOut", "ws_brightness=m10"));
   
   //updateCommandLine(CommandLine(CommandLine::kCustom0ActionCommandLineId, "Bougies", "ws_brightness=255;ws_color=00FF00;ws_mode=50;ws_speed=10000"));
-  updateCommandLine(CommandLine(CommandLine::kCustom0ActionCommandLineId, "Liseuse", "ws_setPixel=75_90_FFFFFF"));
+  updateCommandLine(CommandLine(CommandLine::kCustom0ActionCommandLineId, "Liseuse", "ws_brightness=255;ws_setPixel=75_90_FFFFFF"));
   
   
 	saveConfig();
