@@ -74,42 +74,42 @@ String ActionManager::manageCommand(const String & name, const String & value)
 
     if (nameToUse.startsWith("ws_"))
       return LedDriver.sendCommand(nameToUse, valueToUse);
-    //else if (nameToUse.startsWith("bt_"))
-    //  return ButtonManager.sendCommand(nameToUse, valueToUse);
     else if (nameToUse == "bt_on")
         return executeBtnOnAction();
     else if (nameToUse == "bt_off")
         return executeBtnOffAction();
+    else if (nameToUse == "bt_doubleTap")
+        return executeBtnDoubleTouchAction();
     return "";
 }
 
 String ActionManager::executeBtnOnAction()
 {
     Log.println("Executing On Action");
-    return manageCommandLine("ws_speed=1000;ws_fadebrightnessto=255");
+    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kBtOnActionCommandLineId).command());
 }
 
 String ActionManager::executeBtnOffAction()
 {
     Log.println("Executing Off Action");
-    return manageCommandLine("ws_speed=1000;ws_fadebrightnessto=0");
+    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kBtOffActionCommandLineId).command());
 }
 
 String ActionManager::executeDimmerFadeInAction()
 {
     Log.println("Executing Fade In Dimmer Action");
-    return manageCommandLine("ws_brightness=p10");
+    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kFadeInActionCommandLineId).command());
 }
 
 String ActionManager::executeDimmerFadeOutAction()
 {
     Log.println("Executing Fade Out Dimmer Action");
-    return manageCommandLine("ws_brightness=m10");
+    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kFadeOutActionCommandLineId).command());
 }
 
 String ActionManager::executeBtnDoubleTouchAction()
 {
-    return manageCommandLine("ws_brightness=255;ws_color=00FF00;ws_mode=50;ws_speed=10000");
+    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kCustom0ActionCommandLineId).command());
 }
 
 #if !defined(NO_GLOBAL_INSTANCES)
