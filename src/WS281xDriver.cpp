@@ -44,6 +44,7 @@ void WS281xDriver::setup()
 
 void WS281xDriver::handle()
 {
+    LedDriver.driver()->show();
     _ws2812fx->service();
 }
 
