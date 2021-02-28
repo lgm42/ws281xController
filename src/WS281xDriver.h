@@ -8,14 +8,14 @@
 #define PWM_MIN	0
 
 #include <Arduino.h>
-#include <WS2812FX.h>
+#include <NeoPixelBus.h>
+#include <NeoPixelAnimator.h>
+
+#include "settings.h"
 
 class WS281xDriver 
 {
   public:
-  
-    static const int FadeAnimationIndex;
-    static const int FadeBrightnessAnimationIndex;
 
 	WS281xDriver() {}
   	virtual ~WS281xDriver() {}
@@ -23,43 +23,50 @@ class WS281xDriver
 	void setup();
 	void handle();
 
-	WS2812FX * driver();
-
 	String sendCommand(const String & name, const String & value);
 	String sendCommand(const String & command);
 
-	bool isBrightnessMin();
-	bool isBrightnessMax();
+	uint8_t globalBrightness() const;
+	bool isBrightnessMin() const;
+	bool isBrightnessMax() const;
 
-	uint8_t getWhiteColor() const;
-	uint8_t getRedColor() const;
-	uint8_t getGreenColor() const;
-	uint8_t getBlueColor() const;
+	//Used to change define absolute brightness to a color
+	static RgbColor setBrightness(RgbColor source, uint8_t brightness);
 
-	void setWhiteColor(const uint8_t value);
-	void setRedColor(const uint8_t value);
-	void setGreenColor(const uint8_t value);
-	void setBlueColor(const uint8_t value);
+private:
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812Method> * _neoPixelBus;
+	NeoPixelAnimator * _animator;
 
+	//Mutualised parameters for animations
+	struct AnimationState
+	{
+		AnimEaseFunction easeing; // the acceleration curve it will use 
+		RgbColor startingLedColors[MAX_LED_COUNT];
+		RgbColor endingLedColors[MAX_LED_COUNT];
 
-	static void getPixelColor(const uint32_t color, uint16_t & n, uint8_t & r, uint8_t & g, uint8_t & b);
-	static uint8_t getWhitePixelColor(const uint32_t color);
-	static uint8_t getRedPixelColor(const uint32_t color);
-	static uint8_t getGreenPixelColor(const uint32_t color);
-	static uint8_t getBluePixelColor(const uint32_t color);
+		uint8_t param0PerLed[MAX_LED_COUNT];
 
-  private:
-  WS2812FX * _ws2812fx;
-  uint32_t _fadeSourceColor;
-  uint32_t _fadeDestColor;
-  uint8_t _fadeCurrentBrightness;
-  uint8_t _fadeDestBrightness;
+		RgbColor startingColor;  // the color the animation starts at
+		RgbColor endingColor; // the color the animation will end at
 
-  static const uint8_t BrightnessGammaTable[101];
+		uint8_t endingBrightness;
+	};
 
-  int parseOffset(const String & value);
-  static uint16_t fadeIn(void);
-  static uint16_t fadeBrightness(void);
+	RgbColor _globalCurrentColor;
+	int _animationSpeed;
+
+	//Animation Description
+
+	static const int FadeToAnimationIndex = 0;
+	static const int FadeBrightnessToAnimationIndex = 1;
+
+	static const int AnimationCount = 2;
+	AnimationState _animationState;
+
+	int parseOffset(const String & value);
+
+	static void fadeAnimationUpdate(const AnimationParam& param);
+	static void fadeBrightnessAnimationUpdate(const AnimationParam& param);
 
 };
 

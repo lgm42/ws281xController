@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <WS2812FX.h>
 #include <ArduinoOTA.h>
 
 #include "Logger.h"
@@ -21,8 +20,8 @@ void setup() {
   Configuration.setup();
   //Configuration.restoreDefault();
 
-  Network.setup();
   LedDriver.setup();
+  Network.setup();
   ButtonManager.setup();
 
   digitalWrite(LED_BUILTIN, 0);
