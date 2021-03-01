@@ -22,12 +22,14 @@
 #define MAX_TIME_BETWEEN_TWO_PRESS  300
 #define TIME_FOR_DIMMER_STEP        100
 
-#define MAX_LED_COUNT               400
+#define MAX_LED_COUNT               200
 
 // ANIMATIONS
 
-#define SPEED_MAX                   3000
-#define SPEED_MIN                   100
+#define SPEED_MAX                   10000
+#define SPEED_MIN                   200
+
+#define ANIMATION_LUMINANCE         .5
 
 // Timezone
 #define UTC_OFFSET      +1
