@@ -16,3 +16,5 @@ web/node_modules/
 
 web/package-lock.json
 web/dist/index.html.gz
+web/dist/index.html
+.gitignore
