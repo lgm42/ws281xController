@@ -1,7 +1,6 @@
 
 #include "Logger.h"
 #include "EEPROMConfiguration.h"
-
 #include "WS281xDriver.h"
 
 /********************************************************/
@@ -10,15 +9,21 @@
 
 void WS281xDriver::setup()
 {
-  //NeoEsp8266Uart1Ws2812InvertedMethod
+
+#ifdef LED_INVERTED
+	_neoPixelBus = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812InvertedMethod>(Configuration.numLeds());
+#else
 	_neoPixelBus = new NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812Method>(Configuration.numLeds());
+#endif
+	
 	_neoPixelBus->ClearTo(RgbColor(0));
-	_animator = new NeoPixelAnimator(AnimationCount);
+	_animator = new NeoPixelAnimator(animation::AnimationCount);
 	_neoPixelBus->Begin();
 	_neoPixelBus->Show();
 
   	_globalCurrentColor = RgbColor(0);
 	_animationSpeed = 2000;
+	_animationRunningIndex = -1;
 }
 
 void WS281xDriver::handle()
@@ -101,10 +106,10 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 		//we copy current led colors into a starting array (should be optimized with a memcpy)
 		for (int i = 0; i < Configuration.numLeds(); ++i)
 		{
-			_animationState.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
-			_animationState.endingLedColors[i] = HtmlColor(destColor);
+			_animationParameters.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
+			_animationParameters.endingLedColors[i] = HtmlColor(destColor);
 		}
-		_animationState.easeing = NeoEase::CubicOut;
+		_animationParameters.easeing = NeoEase::CubicOut;
 
 		Log.println(String("set fade to ") + String(destColor));
 		_animator->StartAnimation(FadeToAnimationIndex, _animationSpeed, fadeAnimationUpdate);
@@ -115,23 +120,23 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 		int offset = parseOffset(valueToUse);
 		Log.println("dest brightness : " + valueToUse);
 		
-		_animationState.easeing = NeoEase::CubicOut;
+		_animationParameters.easeing = NeoEase::CubicOut;
 		
 		//we re-use the fade animation computing target color of each pixel
 		for (int i = 0; i < Configuration.numLeds(); ++i)
 		{
-			_animationState.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
+			_animationParameters.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
 			uint8_t destBrightness;
 			//it can be a relative offset if defined else an absolute value
 			if (offset != 0)
 			{
-				destBrightness = _animationState.startingLedColors[i].CalculateBrightness() + offset;
+				destBrightness = _animationParameters.startingLedColors[i].CalculateBrightness() + offset;
 			}
 			else
 			{
 				destBrightness = valueToUse.toInt();
 			}
-			_animationState.endingLedColors[i] = setBrightness(_animationState.startingLedColors[i], destBrightness);
+			_animationParameters.endingLedColors[i] = setBrightness(_animationParameters.startingLedColors[i], destBrightness);
 		}
 
 		_animator->StartAnimation(FadeToAnimationIndex, _animationSpeed, fadeAnimationUpdate);
@@ -181,80 +186,9 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 
 		Log.println(String("set WS2812FX speed to ") + String(val));
 		_animationSpeed = val;
+		if (_animationRunningIndex > 0)
+			animator()->ChangeAnimationDuration(_animationRunningIndex, _animationSpeed);
     }
-	/*
-    else if (nameToUse == "ws_pwm0")
-    {
-      int offset = parseOffset(valueToUse);
-      int val;
-      if (offset != 0)
-      {
-        val = LedDriver.getWhiteColor() + offset;
-      }
-      else
-      {
-        val = valueToUse.toInt();
-      }
-
-      val = max(min((int)PWM_MAX, val), (int)PWM_MIN);
-
-      Log.println(String("set WS2812FX White color to ") + String(val));
-      LedDriver.setWhiteColor(val);
-    }
-    else if (nameToUse == "ws_pwm1")
-    {
-      int offset = parseOffset(valueToUse);
-      int val;
-      if (offset != 0)
-      {
-        val = LedDriver.getRedColor() + offset;
-      }
-      else
-      {
-        val = valueToUse.toInt();
-      }
-
-      val = max(min((int)PWM_MAX, val), (int)PWM_MIN);
-
-      Log.println(String("set WS2812FX Red color to ") + String(val));
-      LedDriver.setRedColor(val);
-    }
-    else if (nameToUse == "ws_pwm2")
-    {
-      int offset = parseOffset(valueToUse);
-      int val;
-      if (offset != 0)
-      {
-        val = LedDriver.getGreenColor() + offset;
-      }
-      else
-      {
-        val = valueToUse.toInt();
-      }
-
-      val = max(min((int)PWM_MAX, val), (int)PWM_MIN);
-
-      Log.println(String("set WS2812FX Green color to ") + String(val));
-      LedDriver.setGreenColor(val);
-    }
-    else if (nameToUse == "ws_pwm3")
-    {
-      int offset = parseOffset(valueToUse);
-      int val;
-      if (offset != 0)
-      {
-        val = LedDriver.getBlueColor() + offset;
-      }
-      else
-      {
-        val = valueToUse.toInt();
-      }
-
-      val = max(min((int)PWM_MAX, val), (int)PWM_MIN);
-
-      Log.println(String("set WS2812FX blue color to ") + String(val));
-      LedDriver.setBlueColor(val);
-    }*/
     else if (nameToUse == "ws_setpixel")
     {
 		//split params into multiple ones
@@ -292,18 +226,45 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 		//we copy current led colors into a starting array (should be optimized with a memcpy)
 		for (int i = 0; i < Configuration.numLeds(); ++i)
 		{
-			_animationState.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
+			_animationParameters.startingLedColors[i] = _neoPixelBus->GetPixelColor(i);
 			if ((i >= start) && (i <= end))
-				_animationState.endingLedColors[i] = destColor;
+				_animationParameters.endingLedColors[i] = destColor;
 			else
-				_animationState.endingLedColors[i] = RgbColor(0);
+				_animationParameters.endingLedColors[i] = RgbColor(0);
 			
 		}
-		_animationState.easeing = NeoEase::CubicOut;
+		_animationParameters.easeing = NeoEase::CubicOut;
 
 		_animator->StartAnimation(FadeToAnimationIndex, _animationSpeed, fadeAnimationUpdate);
 
     }
+	else if (nameToUse == "ws_animate")
+    {
+		int offset = parseOffset(valueToUse);
+		int targetIndex;
+
+		if (offset != 0)
+		{
+			//If there is an animation running, we get the index and apply the offset to get the new animation index
+			if (animator()->IsAnimating())
+				targetIndex = _animationRunningIndex + offset;
+			else
+				targetIndex = valueToUse.toInt();
+
+		}
+		else
+		{
+			targetIndex = valueToUse.toInt();
+		}
+
+		//we ensure index in range with looping management
+		targetIndex = targetIndex % animation::AnimationCount;
+
+		//we start the animation
+		animator()->StopAll();
+		animator()->StartAnimation(targetIndex, _animationSpeed, animation::getAnimationCallback(targetIndex));
+		_animationRunningIndex = targetIndex;
+	}
     return "";
 }
 
@@ -329,11 +290,30 @@ bool WS281xDriver::isBrightnessMax() const
   return globalBrightness() == 255;
 }
 
+animation::AnimationParameters & WS281xDriver::animationParameters()
+{
+	return _animationParameters;
+}
+
+NeoPixelAnimator * WS281xDriver::animator()
+{
+	return _animator;
+}
+
+#ifdef LED_INVERTED
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812InvertedMethod> * WS281xDriver::strip()
+#else
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812Method> * WS281xDriver::strip()
+#endif
+{
+	return _neoPixelBus;
+}
+
 void WS281xDriver::fadeAnimationUpdate(const AnimationParam& param)
 {
     // first apply an easing (curve) to the animation
     // this simulates acceleration to the effect
-    float progress = LedDriver._animationState.easeing(param.progress);
+    float progress = LedDriver._animationParameters.easeing(param.progress);
 
     // this gets called for each animation on every time step
     // progress will start at 0.0 and end at 1.0
@@ -343,43 +323,13 @@ void WS281xDriver::fadeAnimationUpdate(const AnimationParam& param)
 	for (int i = 0; i < Configuration.numLeds(); ++i)
 	{
       RgbColor updatedColor = RgbColor::LinearBlend(
-          LedDriver._animationState.startingLedColors[i],
-          LedDriver._animationState.endingLedColors[i],
+          LedDriver._animationParameters.startingLedColors[i],
+          LedDriver._animationParameters.endingLedColors[i],
           progress);
       
       // apply the color to the strip
       LedDriver._neoPixelBus->SetPixelColor(i, updatedColor);
-	}
-}
-
-void WS281xDriver::fadeBrightnessAnimationUpdate(const AnimationParam& param)
-{
-    // first apply an easing (curve) to the animation
-    // this simulates acceleration to the effect
-    float progress = LedDriver._animationState.easeing(param.progress);
-
-    // this gets called for each animation on every time step
-    // progress will start at 0.0 and end at 1.0
-    // we use the blend function on the RgbColor to mix
-    // color based on the progress given to us in the animation
-	//for each pixel
-	for (int i = 0; i < Configuration.numLeds(); ++i)
-	{
-		uint8_t newRatio = LedDriver._animationState.param0PerLed[i] + (LedDriver._animationState.endingBrightness - LedDriver._animationState.param0PerLed[i]) * progress;
-		if (i == 0)
-		{
-			Log.println("new ratio : " + String(newRatio));
-			Log.println("LedDriver._animationState.param0PerLed[i] : " + String(LedDriver._animationState.param0PerLed[i]));
-			Log.println("LedDriver._animationState.endingBrightness : " + String(LedDriver._animationState.endingBrightness));
-			Log.println("progress : " + String(progress));
-			char tmp[30];
-			HtmlColor(LedDriver._neoPixelBus->GetPixelColor(i)).ToNumericalString(tmp, 30);
-			Log.println("LedDriver._neoPixelBus->GetPixelColor(i) : " + String(tmp));
-
-			HtmlColor(LedDriver._neoPixelBus->GetPixelColor(i).Brighten(newRatio)).ToNumericalString(tmp, 30);
-			Log.println("LedDriver._neoPixelBus->GetPixelColor(i).Brighten(newRatio) : " + String(tmp));
-		}
-		LedDriver._neoPixelBus->SetPixelColor(i, LedDriver._neoPixelBus->GetPixelColor(i).Dim(newRatio));
+	  delay(1);
 	}
 }
 

@@ -11,6 +11,7 @@
 #include <NeoPixelBus.h>
 #include <NeoPixelAnimator.h>
 
+#include "animation/Animations.h"
 #include "settings.h"
 
 class WS281xDriver 
@@ -33,40 +34,38 @@ class WS281xDriver
 	//Used to change define absolute brightness to a color
 	static RgbColor setBrightness(RgbColor source, uint8_t brightness);
 
+	animation::AnimationParameters & animationParameters();
+
+	NeoPixelAnimator * animator();
+
+#ifdef LED_INVERTED
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812InvertedMethod> * strip();
+#else
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812Method> * strip();
+#endif
+
 private:
+
+#ifdef LED_INVERTED
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812InvertedMethod> * _neoPixelBus;
+#else
 	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812Method> * _neoPixelBus;
+#endif
+
 	NeoPixelAnimator * _animator;
-
-	//Mutualised parameters for animations
-	struct AnimationState
-	{
-		AnimEaseFunction easeing; // the acceleration curve it will use 
-		RgbColor startingLedColors[MAX_LED_COUNT];
-		RgbColor endingLedColors[MAX_LED_COUNT];
-
-		uint8_t param0PerLed[MAX_LED_COUNT];
-
-		RgbColor startingColor;  // the color the animation starts at
-		RgbColor endingColor; // the color the animation will end at
-
-		uint8_t endingBrightness;
-	};
 
 	RgbColor _globalCurrentColor;
 	int _animationSpeed;
+	animation::AnimationParameters _animationParameters;
+	int _animationRunningIndex;
 
 	//Animation Description
 
 	static const int FadeToAnimationIndex = 0;
-	static const int FadeBrightnessToAnimationIndex = 1;
-
-	static const int AnimationCount = 2;
-	AnimationState _animationState;
 
 	int parseOffset(const String & value);
 
 	static void fadeAnimationUpdate(const AnimationParam& param);
-	static void fadeBrightnessAnimationUpdate(const AnimationParam& param);
 
 };
 
