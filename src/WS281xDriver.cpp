@@ -329,7 +329,6 @@ void WS281xDriver::fadeAnimationUpdate(const AnimationParam& param)
       
       // apply the color to the strip
       LedDriver._neoPixelBus->SetPixelColor(i, updatedColor);
-	  delay(1);
 	}
 }
 
