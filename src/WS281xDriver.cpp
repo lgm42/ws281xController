@@ -233,7 +233,7 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 				_animationParameters.endingLedColors[i] = RgbColor(0);
 			
 		}
-		_animationParameters.easeing = NeoEase::CubicOut;
+		_animationParameters.easeing = NeoEase::Linear;
 
 		_animator->StartAnimation(FadeToAnimationIndex, _animationSpeed, fadeAnimationUpdate);
 
@@ -262,7 +262,8 @@ String WS281xDriver::sendCommand(const String & name, const String & value)
 
 		//we start the animation
 		animator()->StopAll();
-		animator()->StartAnimation(targetIndex, _animationSpeed, animation::getAnimationCallback(targetIndex));
+		if (targetIndex > 0)
+			animator()->StartAnimation(targetIndex, _animationSpeed, animation::getAnimationCallback(targetIndex));
 		_animationRunningIndex = targetIndex;
 	}
     return "";

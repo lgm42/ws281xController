@@ -19,3 +19,5 @@ web/dist/index.html.gz
 web/dist/index.html
 web/dist/index.html.gz.h
 .vscode/settings.json
+
+.vscode/
