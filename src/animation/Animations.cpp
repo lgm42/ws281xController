@@ -60,7 +60,9 @@ namespace animation
             LedDriver.strip()->ClearTo(RgbColor(0));
         }
 
-        int ledIndex = Configuration.numLeds() * param.progress;
+        int ledIndex = Configuration.numLeds() * (param.progress * 2);
+        if (ledIndex > Configuration.numLeds())
+            ledIndex = Configuration.numLeds() - (ledIndex - Configuration.numLeds());
 
         for (int i = 0; i < Configuration.numLeds(); ++i)
         {
