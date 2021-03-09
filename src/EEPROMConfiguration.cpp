@@ -136,12 +136,12 @@ void EEPROMConfiguration::restoreDefault()
     updateCommandLine(CommandLine(i, "", ""));
   }
 
-  updateCommandLine(CommandLine(CommandLine::kBtOnActionCommandLineId, "btOn", "ws_fadeto=FFFFFF"));
-  updateCommandLine(CommandLine(CommandLine::kBtOffActionCommandLineId, "btOff", "ws_fadeto=000000"));
-  updateCommandLine(CommandLine(CommandLine::kFadeInActionCommandLineId, "fadeIn", "ws_brightness=p10"));
-  updateCommandLine(CommandLine(CommandLine::kFadeOutActionCommandLineId, "fadeOut", "ws_brightness=m10"));
+  updateCommandLine(CommandLine(CommandLine::kBtOnActionCommandLineId, "btOn", "ws_animate=0;ws_fadeto=FFFFFF"));
+  updateCommandLine(CommandLine(CommandLine::kBtOffActionCommandLineId, "btOff", "ws_animate=0;ws_fadeto=000000"));
+  updateCommandLine(CommandLine(CommandLine::kFadeInActionCommandLineId, "fadeIn", "ws_animate=0;ws_brightness=p10"));
+  updateCommandLine(CommandLine(CommandLine::kFadeOutActionCommandLineId, "fadeOut", "ws_animate=0;ws_brightness=m10"));
   
-  updateCommandLine(CommandLine(CommandLine::kCustom0ActionCommandLineId, "Liseuse", "ws_fadesetpixelto=75_90_FFFFFF"));
+  updateCommandLine(CommandLine(CommandLine::kCustom0ActionCommandLineId, "Liseuse", "ws_animate=0;ws_fadesetpixelto=75_90_FFFFFF"));
   
   
 	saveConfig();
