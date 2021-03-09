@@ -10,7 +10,7 @@
 /******************** Public Method *********************/
 /********************************************************/
 
-ActionManager::ActionManager()
+ActionManager::ActionManager() : customActionNumber(0)
 {
 }
 
@@ -92,6 +92,8 @@ String ActionManager::executeBtnOnAction()
 String ActionManager::executeBtnOffAction()
 {
     Log.println("Executing Off Action");
+    //clear custom action number
+    customActionNumber = 0;
     return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kBtOffActionCommandLineId).command());
 }
 
@@ -109,7 +111,12 @@ String ActionManager::executeDimmerFadeOutAction()
 
 String ActionManager::executeBtnDoubleTouchAction()
 {
-    return manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kCustom0ActionCommandLineId).command());
+
+    String result = manageCommandLine(Configuration.getCommandLineFromId(CommandLine::kCustom0ActionCommandLineId + customActionNumber).command());
+    customActionNumber++;
+    if (Configuration.getCommandLineFromId(CommandLine::kCustom0ActionCommandLineId + customActionNumber).name() == "")
+        customActionNumber = 0;
+    return result;
 }
 
 #if !defined(NO_GLOBAL_INSTANCES)

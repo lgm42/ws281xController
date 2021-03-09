@@ -18,6 +18,7 @@ public:
     String executeBtnDoubleTouchAction();
 
 private:
+    int customActionNumber;
 
 };
 
