@@ -29,6 +29,9 @@ void WS281xDriver::setup()
 void WS281xDriver::handle()
 {
 	_animator->UpdateAnimations();
+	//every second we force refresh
+	if (millis() % 1000 == 0)
+		_neoPixelBus->Dirty();
     _neoPixelBus->Show();
 }
 
@@ -88,7 +91,6 @@ RgbColor WS281xDriver::setBrightness(RgbColor source, uint8_t brightness)
 		return source.Dim(dimRatio);
 	}
 }
-
 
 String WS281xDriver::sendCommand(const String & name, const String & value)
 {
