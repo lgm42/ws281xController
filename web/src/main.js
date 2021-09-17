@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('mqttPasswordInput').value = configuration.mqttPassword;
                 document.getElementById('colorLedOnInput').value = configuration.colorLedOn.toString(16);
                 document.getElementById('numLedsInput').value = configuration.numLeds;
-                document.getElementById('neoPixelTypeInput').value = configuration.neoPixelType;
 
                 for (const [key, value] of Object.entries(configuration.customCommands)) {
                     console.log(key, value);
@@ -97,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function() {
         configuration.mqttPassword = document.getElementById('mqttPasswordInput').value;
         configuration.colorLedOn = parseInt(document.getElementById('colorLedOnInput').value, 16);
         configuration.numLeds = document.getElementById('numLedsInput').value;
-        configuration.neoPixelType = document.getElementById('neoPixelTypeInput').value;
         configuration.customCommands = {};
 
         for (var key = 0; key < 14; ++key) {
