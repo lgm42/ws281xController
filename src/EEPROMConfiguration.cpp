@@ -38,7 +38,6 @@ void EEPROMConfiguration::setup(void)
 	Log.println(String("    mqttPassword: ") + String(_data.mqttPassword));
 	Log.println(String("    colorLedOn: ") + String(_data.colorLedOn));
 	Log.println(String("    numLeds: ") + String(_data.numLeds));
-	Log.println(String("    neoPixelType: ") + String(_data.neoPixelType));
 }
 
 bool EEPROMConfiguration::readConfig()
@@ -89,11 +88,6 @@ uint16_t EEPROMConfiguration::numLeds()
     return _data.numLeds;
 }
 
-uint16_t EEPROMConfiguration::neoPixelType()
-{
-    return _data.neoPixelType;
-}
-
 CommandLine EEPROMConfiguration::getCommandLineFromId(const int id)
 {
   if (id >= CommandLine::kEndOfCommandLineIds)
@@ -128,7 +122,6 @@ void EEPROMConfiguration::restoreDefault()
   strcpy(_data.mqttLogin, "");
   strcpy(_data.mqttPassword, "");
   _data.numLeds = DEFAULT_WS281X_LED_COUNT;
-  _data.neoPixelType = DEFAULT_WS281X_NEO_PIXEL_TYPE;
   _data.colorLedOn = DEFAULT_WS281X_COLOR_LED_ON;
 
   for (int i = 0; i < CommandLine::kEndOfCommandLineIds; ++i)
@@ -159,7 +152,6 @@ String EEPROMConfiguration::toJson()
   conf["mqttPassword"] = mqttPassword();
   conf["colorLedOn"] = colorLedOn();
   conf["numLeds"] = numLeds();
-  conf["neoPixelType"] = neoPixelType();
 
   for (int id = 0; id < CommandLine::kEndOfCommandLineIds; ++id)
   {
@@ -201,7 +193,6 @@ void EEPROMConfiguration::fromJson(const String & json)
 
   _data.colorLedOn = conf["colorLedOn"];
   _data.numLeds = conf["numLeds"];
-  _data.neoPixelType = conf["neoPixelType"];
 
   for (int id = 0; id < CommandLine::kEndOfCommandLineIds; ++id)
   {

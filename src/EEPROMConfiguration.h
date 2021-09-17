@@ -29,7 +29,6 @@ class EEPROMConfiguration
 	String mqttPassword();
 	uint32_t colorLedOn();
 	uint16_t numLeds();
-	uint16_t neoPixelType();
 	CommandLine getCommandLineFromId(const int id);
 	void updateCommandLine(const CommandLine & commandLine);
 
@@ -51,7 +50,7 @@ class EEPROMConfiguration
 		char mqttPassword[30];
 		uint32_t colorLedOn;
 		uint16_t numLeds;
-		uint16_t neoPixelType;
+		uint16_t unused;
 		commandLineContent commandLines[CUSTOM_COMMAND_NUMBER + 4];
 	} rawData;
 
