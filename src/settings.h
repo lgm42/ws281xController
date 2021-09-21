@@ -9,7 +9,6 @@
 #define DEFAULT_MQTTSERVERIP                "192.168.0.62"
 #define DEFAULT_MQTTSERVERPORT              1883
 #define DEFAULT_WS281X_LED_COUNT            90
-#define DEFAULT_WS281X_NEO_PIXEL_TYPE       6 //TODO : remove
 #define DEFAULT_WS281X_COLOR_LED_ON         0xFFFFFFFF
 
 #define NTP_UPDATE_INTERVAL_MSEC     (1 * 3600 * 1000)      // Update time from NTP server every 1 hour
@@ -38,7 +37,7 @@
 #define NTP_SERVERS "0.fr.pool.ntp.org", "time.nist.gov", "pool.ntp.org"
 
 #ifdef D1_MINI
-    #define WS281X_PIN          D6
+    #define WS281X_PIN          D3
 
     // BUTTON
     #define BUTTON              D7
