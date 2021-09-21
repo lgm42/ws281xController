@@ -22,6 +22,7 @@ public:
   static void handleGetConfig();
   static void handleResetConfig();
   static void handleSetConfig();
+  static void handleGetValue();
 
   ESP8266WebServer& webServer();
 private:

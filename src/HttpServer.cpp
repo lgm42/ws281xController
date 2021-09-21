@@ -45,6 +45,7 @@ void HttpServer::setup(void)
   _webServer.on("/getConfig", HttpServer::handleGetConfig);
   _webServer.on("/resetConfig", HttpServer::handleResetConfig);
   _webServer.on("/setConfig", HTTP_POST, HttpServer::handleSetConfig);
+  _webServer.on("/getValue", HttpServer::handleGetValue);
 
   _webServer.onNotFound([&]() {
 		if (!handleFileRead(_webServer.uri()))
@@ -182,6 +183,21 @@ void HttpServer::handleSetConfig()
   Configuration.fromJson(HTTPServer.webServer().arg("plain"));
 
   HTTPServer.webServer().send(200, "application/json", Configuration.toJson());
+}
+
+void HttpServer::handleGetValue()
+{
+
+  Log.println("handleGetValue");
+  HTTPServer.sendCors();
+
+  DynamicJsonDocument result(4096);
+
+  result["globalBrightness"] = LedDriver.globalBrightness();
+  String output;  
+  serializeJson(result, output);
+
+  HTTPServer.webServer().send(200, "application/json", output);
 }
 
 ESP8266WebServer &HttpServer::webServer()
