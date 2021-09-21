@@ -29,8 +29,8 @@ void WS281xDriver::setup()
 void WS281xDriver::handle()
 {
 	_animator->UpdateAnimations();
-	//every second we force refresh
-	if (millis() % 1000 == 0)
+	//every 1/10th second we force refresh
+	if (millis() % 100 == 0)
 		_neoPixelBus->Dirty();
     _neoPixelBus->Show();
 }
