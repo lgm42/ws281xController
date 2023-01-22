@@ -16,9 +16,9 @@
 // LED
 #define LED_PIN             LED_BUILTIN
 
-#define MIN_TIME_FOR_SHORT_PRESS    100
-#define MIN_TIME_FOR_LONG_PRESS    500
-#define MAX_TIME_BETWEEN_TWO_PRESS  300
+#define MIN_TIME_FOR_SHORT_PRESS    50
+#define MIN_TIME_FOR_LONG_PRESS    800
+#define MAX_TIME_BETWEEN_TWO_PRESS  500
 #define TIME_FOR_DIMMER_STEP        100
 
 #define MAX_LED_COUNT               200
@@ -37,14 +37,14 @@
 #define NTP_SERVERS "0.fr.pool.ntp.org", "time.nist.gov", "pool.ntp.org"
 
 #ifdef D1_MINI
-    #define WS281X_PIN          D3
+    #define WS281X_PIN          RX
 
     // BUTTON
     #define BUTTON              D7
 #endif
 
 #ifdef SONOFF_BASIC
-    #define WS281X_PIN          2//D6
+    #define WS281X_PIN          RX
 
     // BUTTON
     #define BUTTON              4//D7

@@ -61,6 +61,9 @@ namespace animation
         }
 
         int ledIndex = Configuration.numLeds() * (param.progress * 2);
+        if (ledIndex == Configuration.numLeds())
+            LedDriver.animationParameters().startingColor = HslColor(random(360) / 360.0f, 1., ANIMATION_LUMINANCE);
+            
         if (ledIndex > Configuration.numLeds())
             ledIndex = Configuration.numLeds() - (ledIndex - Configuration.numLeds());
 

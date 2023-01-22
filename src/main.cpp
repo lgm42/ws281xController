@@ -9,6 +9,15 @@
 
 void setup() {
   delay(100);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(200);
+  digitalWrite(LED_BUILTIN, 1);
+  delay(200);
+  digitalWrite(LED_BUILTIN, 0);
+  delay(200);
+  digitalWrite(LED_BUILTIN, 1);
+  delay(200);
 
   /* Initialize Logger */
   Log.setup();
